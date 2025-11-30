@@ -170,6 +170,35 @@ const Index = () => {
     setEmployeeName('');
   };
 
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleExport = () => {
+    const report = `ОТЧЕТ ПО ШВЕДСКОМУ СТОЛУ\n\nДата: ${currentDate}\nОтветственный: ${employeeName || 'Не указан'}\n\nОбщая готовность: ${checkedItems}/${totalItems} (${Math.round(progressPercentage)}%)\n\n`;
+    
+    const zonesReport = zones.map(zone => {
+      const completed = zone.items.filter(item => item.checked).length;
+      const total = zone.items.length;
+      let zoneText = `${zone.title} (${completed}/${total})\n`;
+      zone.items.forEach(item => {
+        zoneText += `  ${item.checked ? '✓' : '✗'} ${item.name}\n`;
+      });
+      return zoneText;
+    }).join('\n');
+
+    const fullReport = report + zonesReport;
+    const blob = new Blob([fullReport], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `отчет_${new Date().toLocaleDateString('ru-RU').replace(/\./g, '-')}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   const totalItems = zones.reduce((acc, zone) => acc + zone.items.length, 0);
   const checkedItems = zones.reduce(
     (acc, zone) => acc + zone.items.filter(item => item.checked).length,
@@ -181,16 +210,34 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8 animate-fade-in">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-4 gap-4">
             <h1 className="text-4xl font-bold text-foreground">Шведский стол</h1>
-            <Button
-              onClick={resetAll}
-              variant="outline"
-              className="hover-scale"
-            >
-              <Icon name="RotateCcw" size={16} className="mr-2" />
-              Сбросить
-            </Button>
+            <div className="flex gap-2 print:hidden">
+              <Button
+                onClick={handlePrint}
+                variant="default"
+                className="hover-scale"
+              >
+                <Icon name="Printer" size={16} className="mr-2" />
+                Печать
+              </Button>
+              <Button
+                onClick={handleExport}
+                variant="default"
+                className="hover-scale"
+              >
+                <Icon name="Download" size={16} className="mr-2" />
+                Экспорт
+              </Button>
+              <Button
+                onClick={resetAll}
+                variant="outline"
+                className="hover-scale"
+              >
+                <Icon name="RotateCcw" size={16} className="mr-2" />
+                Сбросить
+              </Button>
+            </div>
           </div>
 
           <Card className="p-6 bg-card shadow-sm mb-6">
