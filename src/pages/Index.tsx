@@ -4,6 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
 import {
   Accordion,
@@ -26,6 +28,14 @@ interface Zone {
 }
 
 const Index = () => {
+  const [employeeName, setEmployeeName] = useState('');
+  const [currentDate] = useState(new Date().toLocaleDateString('ru-RU', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }));
+  
   const [zones, setZones] = useState<Zone[]>([
     {
       id: 1,
@@ -157,6 +167,7 @@ const Index = () => {
       ...zone,
       items: zone.items.map(item => ({ ...item, checked: false })),
     })));
+    setEmployeeName('');
   };
 
   const totalItems = zones.reduce((acc, zone) => acc + zone.items.length, 0);
@@ -181,6 +192,37 @@ const Index = () => {
               Сбросить
             </Button>
           </div>
+
+          <Card className="p-6 bg-card shadow-sm mb-6">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <Label htmlFor="employee" className="text-sm font-medium mb-2 block">
+                  Ответственный сотрудник
+                </Label>
+                <div className="flex items-center gap-2">
+                  <Icon name="User" size={20} className="text-muted-foreground" />
+                  <Input
+                    id="employee"
+                    placeholder="Введите ФИО"
+                    value={employeeName}
+                    onChange={(e) => setEmployeeName(e.target.value)}
+                    className="flex-1"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label className="text-sm font-medium mb-2 block">
+                  Дата проверки
+                </Label>
+                <div className="flex items-center gap-2">
+                  <Icon name="Calendar" size={20} className="text-muted-foreground" />
+                  <div className="flex-1 px-3 py-2 bg-secondary/50 rounded-md text-sm">
+                    {currentDate}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
           
           <Card className="p-6 bg-card shadow-sm">
             <div className="flex items-center justify-between mb-4">
